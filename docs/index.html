@@ -1,0 +1,30 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#c62828"><link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png"><title>台股每日選股</title>
+<style>
+:root{--bg:#f5f5f5;--card:#fff;--tx:#111;--sub:#666}
+@media(prefers-color-scheme:dark){:root{--bg:#121212;--card:#1e1e1e;--tx:#eee;--sub:#999}}
+body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:var(--tx)}
+header{background:#c62828;color:#fff;padding:16px}h1{margin:0;font-size:20px}
+header p{margin:4px 0 0;font-size:13px;opacity:.9}
+.card{background:var(--card);margin:10px;padding:12px 14px;border-radius:12px;display:flex;justify-content:space-between;align-items:center}
+.n{font-size:17px;font-weight:600}.s{font-size:12px;color:var(--sub);margin-top:4px}
+.p{text-align:right}.px{font-size:18px;font-weight:600}.up{color:#d32f2f}.dn{color:#2e7d32}
+.empty,.foot{text-align:center;color:var(--sub);padding:20px;font-size:13px}
+</style></head><body>
+<header><h1>📈 台股每日選股</h1><p id="meta">載入中…</p></header>
+<div id="list"></div>
+<div class="foot">條件：多頭排列＋突破20日高＋量增1.5倍＋MACD轉強＋RSI 55~80<br>
+使用前一交易日收盤資料。技術訊號僅供參考，非投資建議。</div>
+<script>
+fetch('data.json?'+Date.now()).then(r=>r.json()).then(d=>{
+ document.getElementById('meta').textContent='資料日 '+d.date+'｜符合 '+d.total+' 檔｜更新 '+d.updated;
+ var l=document.getElementById('list');
+ if(!d.stocks.length){l.innerHTML='<div class="empty">今日無符合條件的個股</div>';return;}
+ l.innerHTML=d.stocks.map(function(s){var c=s.pct>=0?'up':'dn';
+ return '<div class="card"><div><div class="n">'+s.code+' '+s.name+'</div><div class="s">量比 '+s.vol_ratio+'x｜停損參考 '+s.stop+'</div></div>'+
+ '<div class="p"><div class="px '+c+'">'+s.close.toFixed(2)+'</div><div class="s '+c+'">'+(s.pct>=0?'+':'')+s.pct.toFixed(2)+'%</div></div></div>';}).join('');
+}).catch(function(){document.getElementById('meta').textContent='尚無資料，請稍後再試';});
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
+</script></body></html>
